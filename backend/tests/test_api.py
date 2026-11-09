@@ -12,6 +12,10 @@ def test_health_check_shape():
     assert "version" in data
     assert "model_loaded" in data
     assert isinstance(data["model_loaded"], bool)
+    assert "modes_supported" in data
+    assert "url" in data["modes_supported"]
+    assert "sms" in data["modes_supported"]
+    assert "text" in data["modes_supported"]
 
 def test_analyze_response_contract_and_types():
     payload = {"url": "https://www.turkiye.gov.tr/hizmetler"}
@@ -51,3 +55,29 @@ def test_analyze_validation_error_shape():
     assert "detail" in data
     assert isinstance(data["detail"], str)
     assert len(data["detail"]) > 0
+
+def test_sms_endpoint_contract():
+    payload = {
+        "message": "Sayin kullanici, HGS borcunuz vardir. Odeme icin: http://hgs-online-ceza.cc",
+        "sender": "HGS-BILGI"
+    }
+    response = client.post("/analyze/sms", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] in ["Güvenli", "Şüpheli", "Oltalama Riski"]
+    assert "detected_topics" in data
+    assert "manipulation" in data
+    assert "content_safety" in data
+    assert "ai_score_explanation" in data
+
+def test_text_endpoint_contract():
+    payload = {
+        "title": "Fatura Bildirimi",
+        "content": "Elektrik faturanız son ödeme tarihi geçmiştir."
+    }
+    response = client.post("/analyze/text", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] in ["Güvenli", "Şüpheli", "Oltalama Riski"]
+    assert "detected_topics" in data
+    assert "manipulation" in data

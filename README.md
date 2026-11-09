@@ -1,26 +1,37 @@
 # Oltasez 🎣🛡️
 
-> **Yapay Zekâ Destekli Modern Web Tabanlı Phishing / Oltalama URL Analiz Platformu**
+> **Türkçe Odaklı Siber Tehdit, Dolandırıcılık ve Oltalama Analiz Platformu**
 
-Oltasez; kullanıcıların karşılaştığı şüpheli bağlantıları sayfa içeriğini taramaya (scraping) ve gizliliği ihlal etmeye gerek kalmadan, doğrudan leksikal/yapısal URL öznitelikleri ve makine öğrenimi modelleri ile saniyeler içinde analiz eden açık kaynaklı bir siber güvenlik projesidir.
+Oltasez; kullanıcıların karşılaştığı şüpheli bağlantıları (URL), SMS tuzaklarını (HGS, kargo, sahte fatura) ve e-posta içeriklerini sayfa kazıma (scraping) ve gizlilik ihlali yapmadan, doğrudan leksikal öznitelikler, aciliyet belirteçleri ve Türkçe siber güvenlik modelleriyle çözümleyen açık kaynaklı bir platformdur.
 
 ---
 
-## 🌟 Öne Çıkan Özellikler
+## 🌟 3 Farklı Analiz Modu
 
-- **%100 URL Tabanlı ve Gizlilik Dostu:** Web sitelerine bağlanıp kod çalıştırmaz; parola, oturum veya sayfa kazıma yapmaz.
-- **14 Matematiksel Öznitelik Çıkarımı:** Entropi (Shannon randomness), alt alan adı derinliği, IP barındırma, homograf/punycode (`xn--`), rakam yoğunluğu vb.
-- **Hibrit Değerlendirme Motoru:** scikit-learn ML sınıflandırıcısı + Şeffaf siber güvenlik kuralları.
-- **Açıklanabilir Güvenlik Raporu:** Belirlenen risk durumunun gerekçelerini son kullanıcının anlayabileceği Türkçe maddeler halinde sunar.
-- **Modern Siber Güvenlik Arayüzü:** Koyu tema, cam morfoloji (glassmorphism), siber gösterge paneli (gauge visual) ve responsive tasarım.
+1. **URL Analizi:**
+   - 14 matematiksel öznitelik (Shannon entropisi, punycode/homograf tespiti, IP kullanımı, alt alan adı derinliği vb.).
+   - Ağ isteği yapmadan, web sitelerine bağlanmadan tamamen leksikal değerlendirme.
+2. **SMS ve Dolandırıcılık Mesajı Analizi:**
+   - HGS / geçiş ücreti sahtekarlığı, PTT / kargo teslimat tuzağı, elektrik / doğalgaz faturası taklitleri.
+   - Aciliyet, haciz, dava tehdidi ve finansal talep baskısı analizi.
+   - Mesaj içindeki URL'lerin otomatik ayıklanıp yapısal puanlanması.
+3. **Başlık ve Metin Analizi:**
+   - E-posta başlığı ve metin gövdesi üzerinde sosyal mühendislik tespiti.
+   - Banka, e-Devlet ve kurum taklidi göstergeleri.
+
+### ⚠️ Kritik Ayrım Prensipleri
+- **Konu ≠ Dolandırıcılık Kanıtı:** Bir metinde "HGS" veya "Fatura" kelimesi geçmesi tek başına oltalama kanıtı değildir.
+- **İçerik Güvenliği ≠ Oltalama:** Küfür, hakaret ve argo dil `content_safety` katmanında değerlendirilir; phishing risk skorunu yapay olarak yükseltmez.
+- **Saydam AI Değerlendirmesi:** Gerçek ML modeli yüklenmediğinde hiçbir zaman uydurma yapay zeka güven puanı üretilmez; kural ve sezgisel motor sonuçları şeffafça paylaşılır.
 
 ---
 
 ## 🏗️ Teknoloji Yığını
 
-- **Frontend:** Next.js (App Router), TypeScript, Tailwind CSS, Lucide Icons
-- **Backend:** FastAPI, Python 3.10+, scikit-learn, joblib, pydantic v2
-- **Dağıtım / Deployment:** Vercel (Frontend) + Render / Railway / Docker (Backend)
+- **Frontend:** Next.js (App Router), TypeScript, Tailwind CSS, Lucide Icons (Vercel Dağıtımı Uyumlu)
+- **Backend:** FastAPI, Python 3.10+, Pydantic v2, scikit-learn
+- **Test:** Pytest birim test altyapısı (URL, SMS, Metin, API sözleşmeleri)
+- **Dağıtım:** Vercel (Frontend) + Render / Railway / Docker (Backend)
 
 ---
 
@@ -31,37 +42,36 @@ oltasez/
 ├── backend/
 │   ├── app/
 │   │   ├── api/
-│   │   │   └── endpoints.py        # POST /analyze yönlendiricisi
+│   │   │   └── endpoints.py        # /health, /analyze, /analyze/url, /analyze/sms, /analyze/text
 │   │   ├── core/
+│   │   │   ├── text_utils.py       # Türkçe konu kalıpları, aciliyet & içerik güvenliği regexleri
+│   │   │   ├── url_utils.py        # URL doğrulama, normalizasyon & entropi
+│   │   │   ├── feature_extractor.py# 14 matematiksel öznitelik çıkarıcı
+│   │   │   ├── explainer.py        # Şeffaf Türkçe gerekçe motoru
 │   │   │   ├── config.py           # Dinamik CORS ve ortam ayarları
-│   │   │   ├── url_utils.py        # URL doğrulama, regex & entropi hesaplama
-│   │   │   ├── feature_extractor.py# 14 gerçek öznitelik çıkarıcı
-│   │   │   ├── explainer.py        # Kullanıcı dostu Türkçe gerekçe üretici
-│   │   │   ├── model_features.py   # Sabit model girdi vektör eşlemesi
-│   │   │   └── model_loader.py     # Singleton ML model yöneticisi & predict
+│   │   │   └── model_loader.py     # Singleton model yöneticisi
 │   │   ├── schemas/
-│   │   │   └── analysis.py         # Pydantic v2 doğrulama ve yanıt sözleşmeleri
+│   │   │   └── analysis.py         # Pydantic v2 veri sözleşmeleri
 │   │   ├── services/
-│   │   │   └── analyzer.py         # Hibrit analiz boru hattı
-│   │   └── main.py                 # FastAPI uygulaması, CORS & lifespan
-│   ├── models/
-│   │   └── phishing_model.joblib   # Eğitilmiş ML model dosyası
-│   ├── tests/                      # Pytest birim ve entegrasyon testleri
-│   ├── training/                   # Model eğitim betikleri ve raporlar
-│   ├── Dockerfile                  # Üretime hazır hafif Docker imajı
+│   │   │   └── analyzer.py         # URL, SMS ve Metin çok modlu analiz servisleri
+│   │   └── main.py                 # FastAPI uygulaması & lifespan
+│   ├── tests/                      # test_api.py, test_sms_analysis.py, test_text_analysis.py ...
 │   ├── requirements.txt            # Python bağımlılıkları
+│   ├── Dockerfile
 │   └── .env.example
 │
 ├── frontend/
 │   ├── src/
-│   │   ├── app/                    # Next.js App Router sayfaları
-│   │   ├── components/             # ResultPanel, SampleUrls, Empty/Loading/Error states
-│   │   ├── services/               # FastAPI bağlantı istemcisi
-│   │   └── types/                  # TypeScript tip sözleşmeleri
+│   │   ├── app/                    # Next.js App Router (Çok modlu modern dashboard)
+│   │   ├── components/             # ResultPanel, MessageResultPanel, ModeSelector ...
+│   │   ├── services/               # analyzeUrl, analyzeSms, analyzeText API istemcileri
+│   │   └── types/                  # TypeScript analiz tipleri ve sözleşmeleri
 │   ├── package.json
-│   └── .env.example                # NEXT_PUBLIC_API_URL şablonu
+│   ├── postcss.config.js           # Tailwind CSS & Autoprefixer uyumlu
+│   └── .env.example
 │
-├── docker-compose.yml              # Tek komutla backend container başlatıcı
+├── .env.example                    # Kök ortam değişkenleri referansı
+├── docker-compose.yml
 └── README.md
 ```
 
@@ -81,65 +91,48 @@ python -m venv venv
 pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8000
 ```
-- Swagger API Dokümantasyonu: `http://localhost:8000/docs`
+- Swagger UI Dokümantasyonu: `http://localhost:8000/docs`
 - Sağlık Kontrolü: `http://localhost:8000/health`
 
-### 2. Frontend (Next.js) Başlatma
-Yeni bir terminalde:
+### 2. Frontend (Next.js)
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
-Tarayıcınızda açın: `http://localhost:3000`
+- Arayüz: `http://localhost:3000`
 
 ---
 
-## ☁️ Canlıya Dağıtım Rehberi (Deployment Guide)
+## 🧪 Testleri Çalıştırma
 
-Oltasez'i canlıya almak için en kolay ve popüler yöntem: **Frontend'i Vercel'e, Backend'i Render veya Railway'e** yüklemektir.
-
-### Bölüm A: Backend Dağıtımı (Render / Railway / VPS)
-
-#### Seçenek 1: Render.com (Ücretsiz & Çok Kolay)
-1. [Render.com](https://render.com) üzerinde ücretsiz hesap açın ve **New + > Web Service** seçin.
-2. GitHub reponuzu bağlayın.
-3. Ayarları şu şekilde girin:
-   - **Root Directory:** `backend`
-   - **Runtime:** `Python 3`
-   - **Build Command:** `pip install -r requirements.txt`
-   - **Start Command:** `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
-4. **Environment Variables** bölümüne şunları ekleyin:
-   - `ENVIRONMENT` = `production`
-   - `CORS_ORIGINS` = `https://oltasez.vercel.app,*`
-5. **Deploy Web Service** butonuna tıklayın. Render size bir URL verecektir (örn: `https://oltasez-api.onrender.com`).
-
-#### Seçenek 2: Docker ile Dağıtım (Herhangi bir VPS veya Container Platformu)
-Proje kök dizininde tek komutla container'ı başlatabilirsiniz:
-```bash
-docker compose up -d --build
-```
-
----
-
-### Bölüm B: Frontend Dağıtımı (Vercel)
-
-1. [Vercel.com](https://vercel.com) üzerinde oturum açın ve **Add New... > Project** butonuna tıklayın.
-2. Oltasez GitHub reponuzu seçin.
-3. Proje ayarlarında:
-   - **Root Directory:** `frontend` seçin.
-4. **Environment Variables** (Ortam Değişkenleri) alanına backend adresinizi girin:
-   - Key: `NEXT_PUBLIC_API_URL`
-   - Value: `https://oltasez-api.onrender.com` *(Bölüm A'da aldığınız canlı backend URL'si)*
-5. **Deploy** butonuna tıklayın. Vercel uygulamanızı saniyeler içinde canlıya alacaktır!
-
----
-
-## 🧪 Birim Testleri Çalıştırma
-
-Backend testlerini çalıştırmak için:
+Backend birim ve sözleşme testleri için:
 ```bash
 cd backend
-pytest -v
+pytest
 ```
-Tüm URL doğrulamaları, 14 öznitelik çıkarımı, açıklama mantığı ve API sözleşmeleri otomatik olarak test edilir.
+- `test_url_validation.py`: URL geçerlilik testleri
+- `test_feature_extractor.py`: 14 öznitelik çıkarımı
+- `test_sms_analysis.py`: HGS taklidi, aciliyet, küfür ve dolandırıcılık ayrımı
+- `test_text_analysis.py`: Banka ve fatura e-posta analizleri
+- `test_api.py`: `/health`, `/analyze/url`, `/analyze/sms`, `/analyze/text` JSON şemaları
+
+---
+
+## ☁️ Canlıya Dağıtım (Deployment)
+
+### A. Frontend (Vercel)
+1. Vercel paneline gidin ve GitHub deponuzu bağlayın.
+2. **Root Directory** olarak `frontend` seçin.
+3. **Framework Preset:** `Next.js`
+4. **Environment Variables:**
+   - `NEXT_PUBLIC_API_URL`: Backend API adresiniz (örn: `https://oltasez-api.onrender.com`)
+5. Deploy butonuna basın.
+
+### B. Backend (Render / Railway)
+1. Yeni bir **Web Service** oluşturun ve GitHub deponuzu bağlayın.
+2. **Root Directory:** `backend`
+3. **Build Command:** `pip install -r requirements.txt`
+4. **Start Command:** `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+5. **Environment Variables:**
+   - `CORS_ORIGINS`: `https://sizin-app.vercel.app`
