@@ -1,0 +1,99 @@
+name: CI/CD Pipeline & Automated Security Verification
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ============================================================================
+  # 1. Backend Verification & Security Scan
+  # ============================================================================
+  backend-test:
+    name: Backend Lint, Unit Tests & Contract Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+          pip install pytest pytest-cov flake8
+
+      - name: Run Backend Lint (flake8)
+        run: |
+          # Stop build if there are Python syntax errors or undefined names
+          flake8 backend/app --count --select=E9,F63,F7,F82 --show-source --statistics
+
+      - name: Run Pytest & Contract Test Suite
+        run: |
+          cd backend
+          pytest tests/ -v
+
+  # ============================================================================
+  # 2. Frontend Build, Typecheck & Verification
+  # ============================================================================
+  frontend-test:
+    name: Frontend Lint, Typecheck & Logic Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Frontend Dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Run Frontend Logic Tests
+        run: |
+          node frontend/test_frontend_logic.js
+
+      - name: Run Next.js Production Build
+        run: |
+          cd frontend
+          npm run build
+        env:
+          NEXT_PUBLIC_API_URL: "http://localhost:8000"
+
+  # ============================================================================
+  # 3. Security, SSRF & Rate Limiting Verification
+  # ============================================================================
+  security-audit:
+    name: Security, SSRF & Rate Limit Verification
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Run 45 Modular Detection Engine Tests
+        run: |
+          node backend/tests/run_engine_verification.js
+
+      - name: Run 13 Production Security & SSRF Tests
+        run: |
+          node backend/tests/run_security_tests.js
