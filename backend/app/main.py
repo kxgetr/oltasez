@@ -4,6 +4,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
+from app.core.security import ProductionSecurityMiddleware
 from app.core.model_loader import model_manager
 from app.schemas.analysis import HealthResponse
 from app.api.endpoints import router as analysis_router
@@ -30,13 +31,17 @@ app = FastAPI(
     redoc_url="/redoc" if settings.ENVIRONMENT != "production_hidden" else None
 )
 
-# CORS Middleware configured from environment variables
+# Production Security Middleware (Rate limiting, body size, request-id, structured logs)
+app.add_middleware(ProductionSecurityMiddleware)
+
+# CORS Middleware configured strictly from environment variables
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
+    expose_headers=["X-Request-ID", "X-Process-Time"]
 )
 
 @app.exception_handler(RequestValidationError)
@@ -54,15 +59,25 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
         }
     )
 
-@app.get("/health", response_model=HealthResponse, tags=["Health"], summary="Servis Sağlık Durumu")
+@app.get("/health", response_model=HealthResponse, tags=["Health"], summary="Servis Sağlık Durumu (Liveness)")
 def health_check() -> HealthResponse:
-    """Returns the operational status of the API and ML model availability."""
+    """Returns the liveness status of the API."""
     return HealthResponse(
         status="ok",
         version=settings.PROJECT_VERSION,
         model_loaded=model_manager.is_loaded,
         model_name=model_manager.model_name
     )
+
+@app.get("/readiness", tags=["Health"], summary="Hazır Olma Durumu (Readiness)")
+def readiness_check():
+    """Kubernetes/Platform readiness probe verifying engine initialization."""
+    return {
+        "status": "ready",
+        "service": settings.PROJECT_NAME,
+        "version": settings.PROJECT_VERSION,
+        "engines_initialized": True
+    }
 
 app.include_router(analysis_router)
 app.include_router(analysis_router, prefix=settings.API_V1_STR)
