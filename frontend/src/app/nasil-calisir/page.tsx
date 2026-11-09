@@ -1,4 +1,5 @@
-import { Metadata } from "next";
+"use client";
+
 import Link from "next/link";
 import { 
   NavigationRail, 
@@ -7,12 +8,7 @@ import {
   PorcelainPanel, 
   EvidenceRow 
 } from "@/components/porcelain";
-import { Cpu, Network, ShieldCheck, LockKey, ArrowRight } from "@phosphor-icons/react";
-
-export const metadata: Metadata = {
-  title: "Araştırma ve Analiz Metodolojisi | Oltasez Porcelain",
-  description: "Oltasez'in leksikal, çok modlu ve sıfır ağ bağlantılı değerlendirme prensipleri.",
-};
+import { Network, ShieldCheck, LockKey, ArrowRight } from "@phosphor-icons/react";
 
 export default function NasilCalisirPage() {
   return (

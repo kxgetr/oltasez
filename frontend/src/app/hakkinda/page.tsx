@@ -1,18 +1,13 @@
-import { Metadata } from "next";
+"use client";
+
 import Link from "next/link";
 import { 
   NavigationRail, 
   FrostedToolbar, 
   AnalysisWorkspace, 
-  PorcelainPanel, 
-  EvidenceRow 
+  PorcelainPanel 
 } from "@/components/porcelain";
-import { Info, Target, Sparkle, ArrowRight } from "@phosphor-icons/react";
-
-export const metadata: Metadata = {
-  title: "Hakkında | Oltasez Porcelain",
-  description: "Oltasez'in akademik temelleri ve açıklanabilir yapay zekâ ilkeleri.",
-};
+import { Target, Sparkle, ArrowRight } from "@phosphor-icons/react";
 
 export default function HakkindaPage() {
   return (

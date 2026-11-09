@@ -1,18 +1,13 @@
-import { Metadata } from "next";
+"use client";
+
 import Link from "next/link";
 import { 
   NavigationRail, 
   FrostedToolbar, 
   AnalysisWorkspace, 
-  PorcelainPanel, 
-  EvidenceRow 
+  PorcelainPanel 
 } from "@/components/porcelain";
-import { LockSimple, EyeSlash, ShieldCheck, ArrowRight } from "@phosphor-icons/react";
-
-export const metadata: Metadata = {
-  title: "Gizlilik ve Veri İşleme | Oltasez Porcelain",
-  description: "Oltasez'in gizlilik odaklı mimarisi ve sıfır veri saklama ilkeleri.",
-};
+import { LockSimple, EyeSlash, ArrowRight } from "@phosphor-icons/react";
 
 export default function GizlilikPage() {
   return (
