@@ -2,47 +2,42 @@
 
 import { useState } from "react";
 import { 
-  Search, 
-  ArrowRight, 
-  Zap, 
-  Binary, 
-  SlidersHorizontal, 
-  CheckCircle2, 
-  ArrowDownCircle, 
-  Globe2,
-  FileSearch,
-  Sparkles,
-  Info,
-  RotateCcw,
-  MessageSquare,
-  FileText,
-  Link2
-} from "lucide-react";
-import { Container } from "@/components/ui/container";
-import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { ResultPanel } from "@/components/analysis/result-panel";
-import { SampleUrlSelector } from "@/components/analysis/sample-urls";
-import { EmptyState } from "@/components/analysis/empty-state";
-import { LoadingState } from "@/components/analysis/loading-state";
-import { ErrorState } from "@/components/analysis/error-state";
-import { ModeSelector, AnalysisMode } from "@/components/analysis/mode-selector";
-import { MessageResultPanel } from "@/components/analysis/message-result-panel";
-import { 
-  URLAnalysisResponse, 
-  SMSAnalysisResponse, 
-  TextAnalysisResponse 
-} from "@/types/analysis";
+  NavigationRail, 
+  FrostedToolbar, 
+  AnalysisWorkspace, 
+  PorcelainPanel, 
+  RiskIndicator, 
+  EvidenceRow, 
+  InspectionPanel 
+} from "@/components/porcelain";
 import { 
   analyzeUrl, 
   analyzeSms, 
   analyzeText, 
   ApiError 
 } from "@/services/api";
+import { 
+  URLAnalysisResponse, 
+  SMSAnalysisResponse, 
+  TextAnalysisResponse 
+} from "@/types/analysis";
+import { 
+  MagnifyingGlass, 
+  ArrowRight, 
+  ArrowClockwise, 
+  ShieldCheck, 
+  Warning, 
+  WarningCircle, 
+  Info,
+  CheckCircle,
+  Copy,
+  Tag,
+  Clock,
+  ChatCircleText
+} from "@phosphor-icons/react";
 
 export default function Home() {
-  const [activeMode, setActiveMode] = useState<AnalysisMode>("url");
+  const [activeTab, setActiveTab] = useState<string>("url");
 
   // URL state
   const [urlInput, setUrlInput] = useState("");
@@ -58,20 +53,13 @@ export default function Home() {
   const [textContent, setTextContent] = useState("");
   const [textResult, setTextResult] = useState<TextAnalysisResponse | null>(null);
 
-  // Shared status state
+  // Status states
+  const [isLoading, setIsLoading] = useState(false);
   const [validationError, setValidationError] = useState("");
   const [serverError, setServerError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
 
-  const scrollToAnalyzer = () => {
-    const el = document.getElementById("analyzer");
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
-  const handleModeChange = (mode: AnalysisMode) => {
-    setActiveMode(mode);
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId);
     setValidationError("");
     setServerError("");
   };
@@ -80,8 +68,8 @@ export default function Home() {
   const executeUrlAnalysis = async (rawUrl: string) => {
     setValidationError("");
     setServerError("");
-
     const trimmed = rawUrl.trim();
+
     if (!trimmed) {
       setValidationError("Lütfen değerlendirmek istediğiniz bir web adresi (URL) giriniz.");
       return;
@@ -99,11 +87,7 @@ export default function Home() {
       const data = await analyzeUrl({ url: trimmed });
       setUrlResult(data);
     } catch (err: any) {
-      if (err instanceof ApiError) {
-        setServerError(err.message);
-      } else {
-        setServerError("Analiz servisine erişilirken beklenmeyen bir ağ yanıtı alındı.");
-      }
+      setServerError(err?.message || "Bağlantı analizi sırasında beklenmeyen bir hata oluştu.");
     } finally {
       setIsLoading(false);
     }
@@ -113,8 +97,8 @@ export default function Home() {
   const executeSmsAnalysis = async () => {
     setValidationError("");
     setServerError("");
-
     const trimmedMsg = smsMessage.trim();
+
     if (!trimmedMsg) {
       setValidationError("Lütfen analiz edilecek SMS veya mesaj metnini giriniz.");
       return;
@@ -130,11 +114,7 @@ export default function Home() {
       });
       setSmsResult(data);
     } catch (err: any) {
-      if (err instanceof ApiError) {
-        setServerError(err.message);
-      } else {
-        setServerError("SMS analiz servisine ulaşılamadı.");
-      }
+      setServerError(err?.message || "SMS analizi sırasında beklenmeyen bir hata oluştu.");
     } finally {
       setIsLoading(false);
     }
@@ -144,10 +124,10 @@ export default function Home() {
   const executeTextAnalysis = async () => {
     setValidationError("");
     setServerError("");
-
     const trimmedContent = textContent.trim();
+
     if (!trimmedContent) {
-      setValidationError("Lütfen analiz edilecek e-posta veya metin içeriğini giriniz.");
+      setValidationError("Lütfen analiz edilecek e-posta veya metin gövdesini giriniz.");
       return;
     }
 
@@ -161,23 +141,19 @@ export default function Home() {
       });
       setTextResult(data);
     } catch (err: any) {
-      if (err instanceof ApiError) {
-        setServerError(err.message);
-      } else {
-        setServerError("Metin analiz servisine ulaşılamadı.");
-      }
+      setServerError(err?.message || "Metin analizi sırasında beklenmeyen bir hata oluştu.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleResetCurrent = () => {
+  const handleReset = () => {
     setValidationError("");
     setServerError("");
-    if (activeMode === "url") {
+    if (activeTab === "url") {
       setUrlInput("");
       setUrlResult(null);
-    } else if (activeMode === "sms") {
+    } else if (activeTab === "sms") {
       setSmsSender("");
       setSmsMessage("");
       setSmsResult(null);
@@ -188,506 +164,500 @@ export default function Home() {
     }
   };
 
-  // Quick fill samples for SMS & Text
-  const loadSmsSample = (sender: string, text: string) => {
-    setSmsSender(sender);
-    setSmsMessage(text);
-  };
-
-  const loadTextSample = (title: string, content: string) => {
-    setTextTitle(title);
-    setTextContent(content);
-  };
-
   return (
-    <div className="flex flex-col min-h-screen">
-      {/* ============================================================
-          1. HERO SECTION
-         ============================================================ */}
-      <section className="relative pt-20 pb-16 sm:pt-28 sm:pb-24 overflow-hidden text-center">
-        <div className="pointer-events-none absolute top-12 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-cyan-500/10 blur-[130px] rounded-full" />
+    <div className="flex h-screen bg-canvas text-ink overflow-hidden font-sans">
+      {/* 1. SOL GEZİNME RAYI (NavigationRail) */}
+      <NavigationRail currentTab={activeTab} onTabChange={handleTabChange} />
 
-        <Container size="default">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/80 border border-cyan-500/30 text-cyan-300 text-xs font-mono mb-8 shadow-[0_0_20px_-3px_rgba(6,182,212,0.15)] backdrop-blur-md">
-            <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-            Türkçe Odaklı Siber Tehdit & Dolandırıcılık Analiz Platformu
-          </div>
-
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white max-w-4xl mx-auto leading-[1.12]">
-            Oltalama ve SMS Tuzaklarını{" "}
-            <span className="bg-gradient-to-r from-teal-200 via-cyan-400 to-sky-400 bg-clip-text text-transparent">
-              Anında Çözümleyin
-            </span>
-          </h1>
-
-          <p className="mt-6 text-base sm:text-lg text-slate-300 max-w-2xl mx-auto font-normal leading-relaxed">
-            HGS borcu, sahte kargo bildirimi, fatura taklidi ve yanıltıcı bağlantıları güvenli, gizlilik odaklı ve çok boyutlu sezgisel motorumuzla saniyeler içinde denetleyin.
-          </p>
-
-          <div className="mt-9 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button size="lg" onClick={scrollToAnalyzer} className="shadow-lg shadow-cyan-500/25 group w-full sm:w-auto">
-              <span>Analize Başla</span>
-              <ArrowDownCircle className="w-4 h-4 ml-2 transition-transform group-hover:translate-y-0.5" />
-            </Button>
-            <a
-              href="#how-it-works"
-              className="text-xs font-mono text-slate-400 hover:text-cyan-300 transition-colors flex items-center gap-1.5 py-2.5 px-4 rounded-xl border border-surface-border/60 hover:border-slate-600 bg-surface/30 backdrop-blur-sm"
-            >
-              <span>3 Boyutlu Analiz Mimarisi</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </a>
-          </div>
-
-          <div className="mt-12 flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs text-slate-400 font-mono">
-            <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> URL & Leksikal Analiz
-            </span>
-            <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400" /> SMS & Sosyal Mühendislik Tespiti
-            </span>
-            <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5 text-teal-400" /> Bağımsız İçerik Güvenliği
-            </span>
-          </div>
-        </Container>
-      </section>
-
-      {/* ============================================================
-          2. ANALYZER SECTION (3 MOD SEÇİCİ & ANALİZ ALANI)
-         ============================================================ */}
-      <section id="analyzer" className="py-16 sm:py-24 bg-[#030712]/90 border-y border-surface-border/70 relative">
-        <Container size="default">
-          <div className="text-center max-w-2xl mx-auto mb-6">
-            <div className="inline-flex items-center gap-1.5 text-[11px] font-mono text-cyan-400 mb-2 uppercase tracking-widest bg-cyan-950/60 border border-cyan-500/30 px-3 py-1 rounded-full">
-              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
-              Çok Modlu Canlı Analiz
+      {/* 2. ORTA ÇALIŞMA ALANI */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        {/* Üst Araç Çubuğu (FrostedToolbar) */}
+        <FrostedToolbar
+          left={
+            <div className="flex items-center gap-2 text-xs text-ink-secondary">
+              <span className="font-semibold text-ink">Çalışma Alanı</span>
+              <span>/</span>
+              <span className="font-medium text-accent">
+                {activeTab === "url" && "URL Güvenlik İncelemesi"}
+                {activeTab === "sms" && "SMS & Sosyal Mühendislik Analizi"}
+                {activeTab === "text" && "Başlık & Metin Tehdit Analizi"}
+              </span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-              Güvenlik Denetim Merkezi
-            </h2>
-            <p className="mt-2 text-xs sm:text-sm text-slate-400">
-              Analiz etmek istediğiniz veri tipini seçin ve içeriği yapıştırın.
-            </p>
-          </div>
+          }
+          right={
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-safe-light text-safe border border-safe-border text-[11px] font-mono-tech">
+                <span className="w-1.5 h-1.5 rounded-full bg-safe" />
+                API v1.0
+              </span>
+            </div>
+          }
+        />
 
-          {/* MOD SEÇİCİ TABLAR */}
-          <ModeSelector currentMode={activeMode} onSelectMode={handleModeChange} />
-
-          {/* ==================== MOD 1: URL ANALİZİ ==================== */}
-          {activeMode === "url" && (
-            <div className="animate-fade-in">
-              <div className="max-w-3xl mx-auto p-2 sm:p-2.5 rounded-2xl analyzer-focal-box">
+        {/* Ana Analiz Alanı (AnalysisWorkspace) */}
+        <AnalysisWorkspace
+          headerTitle={
+            activeTab === "url"
+              ? "URL Güvenlik ve Leksikal İnceleme"
+              : activeTab === "sms"
+              ? "SMS ve Dolandırıcılık Mesajı Analizi"
+              : "Başlık ve Metin İçerik Değerlendirmesi"
+          }
+          headerSubtitle={
+            activeTab === "url"
+              ? "Şüpheli bağlantıları sayfa ziyaretine gerek kalmadan 14 leksikal öznitelik ve kök alan adı kurallarıyla inceleyin."
+              : activeTab === "sms"
+              ? "HGS borcu, sahte kargo bildirimi ve fatura taklidi mesajları aciliyet ve dil güvenliği açısından ayrık olarak değerlendirin."
+              : "E-posta veya duyuru metinlerini hesap tehdidi, sahte çekiliş ve manipülasyon dili yönünden denetleyin."
+          }
+        >
+          {/* ==============================================================
+              TAB 1: URL ANALYZER
+             ============================================================== */}
+          {activeTab === "url" && (
+            <div className="space-y-6">
+              {/* Giriş Paneli */}
+              <PorcelainPanel variant="solid" className="p-4 md:p-5">
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
                     executeUrlAnalysis(urlInput);
                   }}
-                  className="flex flex-col sm:flex-row gap-2.5"
+                  className="space-y-3"
                 >
-                  <div className="relative flex-1 flex items-center">
-                    <Search className="w-5 h-5 absolute left-4 text-cyan-400/80" />
-                    <Input
-                      type="text"
-                      placeholder="https://hesap-dogrulama.xyz veya ornek-site.com"
-                      value={urlInput}
-                      onChange={(e) => {
-                        setUrlInput(e.target.value);
-                        if (validationError) setValidationError("");
-                        if (serverError) setServerError("");
-                      }}
-                      isError={Boolean(validationError || serverError)}
-                      className="pl-12 pr-10 border-none bg-transparent shadow-none text-sm sm:text-base placeholder:text-slate-500 focus:ring-0 text-white"
-                    />
-                    {urlInput && (
-                      <button
-                        type="button"
-                        onClick={handleResetCurrent}
-                        title="Temizle"
-                        className="absolute right-3 p-1 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-                      >
-                        <RotateCcw className="w-3.5 h-3.5" />
-                      </button>
-                    )}
+                  <label className="block text-xs font-semibold text-ink uppercase tracking-wider">
+                    İncelenecek Web Bağlantısı (URL)
+                  </label>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <div className="relative flex-1 flex items-center">
+                      <MagnifyingGlass
+                        size={18}
+                        className="absolute left-3.5 text-ink-muted pointer-events-none"
+                      />
+                      <input
+                        type="text"
+                        value={urlInput}
+                        onChange={(e) => {
+                          setUrlInput(e.target.value);
+                          if (validationError) setValidationError("");
+                          if (serverError) setServerError("");
+                        }}
+                        placeholder="https://ornek-alan-adi.com/odeme veya site.xyz"
+                        className="w-full pl-10 pr-10 py-2.5 rounded-lg border border-border-fine bg-surface text-ink text-xs sm:text-sm font-mono-tech focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                      />
+                      {urlInput && (
+                        <button
+                          type="button"
+                          onClick={handleReset}
+                          className="absolute right-3 p-1 text-ink-muted hover:text-ink rounded"
+                          title="Temizle"
+                        >
+                          <ArrowClockwise size={14} />
+                        </button>
+                      )}
+                    </div>
+                    <button
+                      type="submit"
+                      disabled={isLoading}
+                      className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-accent text-surface text-xs font-semibold hover:bg-accent-hover transition-colors shadow-subtle shrink-0 disabled:opacity-50"
+                    >
+                      {isLoading ? (
+                        <>
+                          <ArrowClockwise size={15} className="animate-spin" />
+                          <span>İnceleniyor...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Analiz Et</span>
+                          <ArrowRight size={15} weight="bold" />
+                        </>
+                      )}
+                    </button>
                   </div>
-                  <Button type="submit" size="lg" isLoading={isLoading} className="sm:w-auto w-full group shrink-0">
-                    <span>Analiz Et</span>
-                    <ArrowRight className="w-4 h-4 ml-1.5 transition-transform group-hover:translate-x-1" />
-                  </Button>
                 </form>
-              </div>
 
-              {validationError && (
-                <p className="text-center text-xs font-mono text-rose-400 mt-3 animate-fade-in">
-                  {validationError}
-                </p>
+                {validationError && (
+                  <p className="text-xs text-alert font-medium mt-2 flex items-center gap-1.5">
+                    <WarningCircle size={14} weight="bold" />
+                    <span>{validationError}</span>
+                  </p>
+                )}
+
+                {/* Demo Örnekleri (Hızlı Doldurma) */}
+                <div className="mt-4 pt-3 border-t border-border-subtle flex flex-wrap items-center gap-2">
+                  <span className="text-[11px] font-semibold text-ink-muted">
+                    Test Senaryoları (Demo):
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const u = "https://www.turkiye.gov.tr/hizmetler";
+                      setUrlInput(u);
+                      executeUrlAnalysis(u);
+                    }}
+                    className="px-2.5 py-1 rounded-md bg-canvas border border-border-subtle text-[11px] text-ink-secondary hover:text-ink hover:border-ink-muted transition-colors font-mono-tech"
+                  >
+                    e-Devlet (Meşru)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const u = "https://turkiye-gov-tr.ceza-odeme.cc/giris";
+                      setUrlInput(u);
+                      executeUrlAnalysis(u);
+                    }}
+                    className="px-2.5 py-1 rounded-md bg-alert-light border border-alert-border/60 text-[11px] text-alert hover:bg-alert-light transition-colors font-mono-tech"
+                  >
+                    Sahte e-Devlet (.cc)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const u = "http://192.168.1.105/fatura-odeme/portal.php";
+                      setUrlInput(u);
+                      executeUrlAnalysis(u);
+                    }}
+                    className="px-2.5 py-1 rounded-md bg-warning-light border border-warning-border/60 text-[11px] text-warning hover:bg-warning-light transition-colors font-mono-tech"
+                  >
+                    Ham IP Barındırma
+                  </button>
+                </div>
+              </PorcelainPanel>
+
+              {/* Sunucu Hatası */}
+              {serverError && (
+                <PorcelainPanel variant="solid" className="p-4 border-alert-border bg-alert-light text-alert text-xs flex items-start gap-2.5">
+                  <Warning size={16} weight="bold" className="shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-bold">Analiz Servisi Yanıtı:</span> {serverError}
+                  </div>
+                </PorcelainPanel>
               )}
 
-              <div className="max-w-3xl mx-auto mt-3 flex items-center justify-center gap-1.5 text-xs text-slate-400 text-center">
-                <Info className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-                <span>Desteklenen biçimler: <code>https://...</code>, <code>http://...</code> veya doğrudan alan adı (örn: <code>site.com</code>).</span>
-              </div>
+              {/* Rapor Paneli (Sonuç Durumu) */}
+              {urlResult && (
+                <PorcelainPanel variant="solid" className="p-5 md:p-6 space-y-6">
+                  {/* Rapor Üst Başlık & Risk Göstergesi */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-border-subtle">
+                    <div>
+                      <div className="text-[11px] font-mono-tech uppercase tracking-wider text-ink-muted">
+                        Adli İnceleme Sonucu
+                      </div>
+                      <h2 className="text-lg font-bold text-ink mt-0.5">
+                        URL Tehdit Değerlendirmesi
+                      </h2>
+                    </div>
+                    <RiskIndicator status={urlResult.status} score={urlResult.risk_score} />
+                  </div>
 
-              {/* URL Örnekleri */}
-              <SampleUrlSelector
-                onSelect={(s) => {
-                  setUrlInput(s);
-                  executeUrlAnalysis(s);
-                }}
-                selectedUrl={urlInput}
-              />
+                  {/* Bulgular Listesi */}
+                  <div className="space-y-2">
+                    <span className="text-xs font-bold text-ink uppercase tracking-wider block">
+                      Tespit Edilen Belirteçler ve Kanıtlar
+                    </span>
+                    <div className="space-y-1.5">
+                      {urlResult.reasons.map((reason, idx) => (
+                        <EvidenceRow
+                          key={idx}
+                          text={reason}
+                          type={
+                            urlResult.status.includes("Oltalama")
+                              ? "alert"
+                              : urlResult.status.includes("Şüpheli")
+                              ? "warning"
+                              : "verified"
+                          }
+                        />
+                      ))}
+                    </div>
+                  </div>
 
-              {/* URL Sonuç Alanı */}
-              {isLoading ? (
-                <LoadingState />
-              ) : serverError ? (
-                <ErrorState message={serverError} onRetry={() => executeUrlAnalysis(urlInput)} />
-              ) : urlResult ? (
-                <ResultPanel result={urlResult} />
-              ) : (
-                <EmptyState />
+                  {/* Sorumluluk Reddi / Güvenlik Bildirimi */}
+                  <div className="p-3 rounded-lg bg-canvas border border-border-subtle text-[11px] text-ink-muted flex items-start gap-2">
+                    <Info size={15} className="shrink-0 text-accent mt-0.5" />
+                    <span>
+                      <strong>Önemli Bildirim:</strong> Bu analiz, hedef web sitesine bağlanılmadan yalnızca leksikal kurallar ve kayıtlı resmî alan adı eşlemelerine dayalı bir ön incelemedir. Kesin güvenlik garantisi teşkil etmez.
+                    </span>
+                  </div>
+                </PorcelainPanel>
               )}
             </div>
           )}
 
-          {/* ==================== MOD 2: SMS ANALİZİ ==================== */}
-          {activeMode === "sms" && (
-            <div className="animate-fade-in max-w-3xl mx-auto">
-              <div className="p-4 sm:p-6 rounded-2xl border border-surface-border bg-surface/80 shadow-2xl backdrop-blur-md space-y-4">
+          {/* ==============================================================
+              TAB 2: SMS FRAUD ANALYZER
+             ============================================================== */}
+          {activeTab === "sms" && (
+            <div className="space-y-6">
+              <PorcelainPanel variant="solid" className="p-4 md:p-5 space-y-4">
                 <div>
-                  <label className="block text-xs font-mono text-slate-300 mb-1.5">
-                    SMS Başlığı / Gönderen Kimliği (Opsiyonel)
+                  <label className="block text-xs font-semibold text-ink uppercase tracking-wider mb-1.5">
+                    Gönderen Başlığı / Numara (Opsiyonel)
                   </label>
-                  <Input
+                  <input
                     type="text"
-                    placeholder="Örn: HGS-INFO, PTT-BILGI veya +905551234567"
                     value={smsSender}
                     onChange={(e) => setSmsSender(e.target.value)}
-                    className="bg-slate-950/70 border-surface-border text-white text-xs sm:text-sm"
+                    placeholder="Örn: HGS-BILGI, PTT-KARGO veya +905551234567"
+                    className="w-full px-3.5 py-2 rounded-lg border border-border-fine bg-surface text-ink text-xs font-mono-tech focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-mono text-slate-300 mb-1.5">
-                    SMS Metni <span className="text-rose-400">*</span>
+                  <label className="block text-xs font-semibold text-ink uppercase tracking-wider mb-1.5">
+                    SMS veya Mesaj Metni <span className="text-alert">*</span>
                   </label>
                   <textarea
                     rows={4}
-                    placeholder="Mesaj metnini buraya yapıştırın..."
                     value={smsMessage}
                     onChange={(e) => {
                       setSmsMessage(e.target.value);
                       if (validationError) setValidationError("");
+                      if (serverError) setServerError("");
                     }}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/70 border border-surface-border text-white text-xs sm:text-sm focus:outline-none focus:border-cyan-500/80 focus:ring-1 focus:ring-cyan-500/80 placeholder:text-slate-500 resize-none"
+                    placeholder="Gelen şüpheli SMS metnini buraya yapıştırın..."
+                    className="w-full p-3 rounded-lg border border-border-fine bg-surface text-ink text-xs sm:text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent resize-none leading-relaxed"
                   />
                 </div>
 
                 <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
                   <div className="flex flex-wrap items-center gap-1.5">
-                    <span className="text-[11px] font-mono text-slate-400 mr-1">Hazır Senaryolar:</span>
+                    <span className="text-[11px] font-semibold text-ink-muted mr-1">
+                      Örnekler:
+                    </span>
                     <button
                       type="button"
-                      onClick={() =>
-                        loadSmsSample(
-                          "HGS-INFO",
-                          "Sayın Araç Sahibi, 2.450 TL ödenmemiş HGS geçiş borcunuz bulunmaktadır. İcra takibi başlatılmaması için derhal ödeyiniz: http://hgs-ceza-online.cc/odeme"
-                        )
-                      }
-                      className="px-2 py-1 rounded bg-slate-900 border border-surface-border text-[11px] text-cyan-300 hover:border-cyan-500/50"
+                      onClick={() => {
+                        setSmsSender("HGS-BILGI");
+                        setSmsMessage(
+                          "Sayin surucu, odenmemis HGS cezaniz vardir. 24 saat icinde odeyiniz yoksa icra takibi baslatilacaktir: http://hgs-ceza-ode.cc"
+                        );
+                      }}
+                      className="px-2 py-0.5 rounded bg-canvas border border-border-subtle text-[11px] text-ink-secondary hover:text-ink"
                     >
-                      HGS Tuzağı
+                      HGS İcra Tuzağı
                     </button>
                     <button
                       type="button"
-                      onClick={() =>
-                        loadSmsSample(
-                          "PTT-KARGO",
-                          "Paketiniz adres eksikliği sebebiyle şubemizde bekletilmektedir. 24 saat içinde güncelleyiniz: http://ptt-kargo-takip.xyz/bilgi"
-                        )
-                      }
-                      className="px-2 py-1 rounded bg-slate-900 border border-surface-border text-[11px] text-teal-300 hover:border-teal-500/50"
+                      onClick={() => {
+                        setSmsSender("HGS");
+                        setSmsMessage(
+                          "HGS bakiye yukleme isleminiz tamamlanmistir. Yeni bakiyeniz 350 TL'dir."
+                        );
+                      }}
+                      className="px-2 py-0.5 rounded bg-canvas border border-border-subtle text-[11px] text-safe hover:border-safe"
                     >
-                      Kargo Tuzağı
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        loadSmsSample(
-                          "HGS",
-                          "HGS bakiye yukleme isleminiz tamamlanmistir. Yeni bakiyeniz 250 TL."
-                        )
-                      }
-                      className="px-2 py-1 rounded bg-slate-900 border border-surface-border text-[11px] text-emerald-300 hover:border-emerald-500/50"
-                    >
-                      Zararsız HGS Bilgisi
+                      Zararsız HGS Bildirimi
                     </button>
                   </div>
 
-                  <div className="flex items-center gap-2 w-full sm:w-auto">
-                    <Button
+                  <div className="flex items-center gap-2">
+                    <button
                       type="button"
-                      variant="ghost"
-                      onClick={handleResetCurrent}
-                      className="text-xs text-slate-400 hover:text-white"
+                      onClick={handleReset}
+                      className="px-3 py-1.5 rounded-lg border border-border-subtle text-xs text-ink-secondary hover:text-ink"
                     >
                       Temizle
-                    </Button>
-                    <Button
+                    </button>
+                    <button
                       type="button"
                       onClick={executeSmsAnalysis}
-                      isLoading={isLoading}
-                      className="flex-1 sm:flex-none shadow-lg shadow-cyan-500/20"
+                      disabled={isLoading}
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent text-surface text-xs font-semibold hover:bg-accent-hover transition-colors shadow-subtle disabled:opacity-50"
                     >
-                      <span>SMS Analizini Başlat</span>
-                      <ArrowRight className="w-4 h-4 ml-1.5" />
-                    </Button>
+                      {isLoading ? "İnceleniyor..." : "SMS Analizini Başlat"}
+                      <ArrowRight size={14} weight="bold" />
+                    </button>
                   </div>
                 </div>
-              </div>
 
-              {validationError && (
-                <p className="text-center text-xs font-mono text-rose-400 mt-3 animate-fade-in">
-                  {validationError}
-                </p>
-              )}
+                {validationError && (
+                  <p className="text-xs text-alert font-medium mt-1 flex items-center gap-1">
+                    <WarningCircle size={14} weight="bold" />
+                    <span>{validationError}</span>
+                  </p>
+                )}
+              </PorcelainPanel>
 
-              {/* SMS Sonuç Alanı */}
-              {isLoading ? (
-                <LoadingState />
-              ) : serverError ? (
-                <ErrorState message={serverError} onRetry={executeSmsAnalysis} />
-              ) : smsResult ? (
-                <MessageResultPanel result={smsResult} mode="sms" />
-              ) : (
-                <EmptyState />
+              {/* SMS Sonuç Raporu */}
+              {smsResult && (
+                <PorcelainPanel variant="solid" className="p-5 md:p-6 space-y-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-border-subtle">
+                    <div>
+                      <div className="text-[11px] font-mono-tech uppercase tracking-wider text-ink-muted">
+                        Mesaj Adli Raporu
+                      </div>
+                      <h2 className="text-lg font-bold text-ink mt-0.5">
+                        Dolandırıcılık ve Manipülasyon Değerlendirmesi
+                      </h2>
+                    </div>
+                    <RiskIndicator status={smsResult.status} score={smsResult.risk_score} />
+                  </div>
+
+                  {/* Konu ve Manipülasyon Belirteçleri (Ayrık Kartlar) */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Konu Sınıflandırması */}
+                    <div className="p-3.5 rounded-lg border border-border-subtle bg-canvas/60 space-y-2">
+                      <div className="flex items-center gap-1.5 text-xs font-semibold text-ink">
+                        <Tag size={15} className="text-accent" />
+                        <span>Tespit Edilen Konular</span>
+                      </div>
+                      {smsResult.detected_topics.length > 0 ? (
+                        <div className="flex flex-wrap gap-1.5">
+                          {smsResult.detected_topics.map((t) => (
+                            <span
+                              key={t.key}
+                              className="px-2 py-0.5 rounded bg-surface border border-border-fine text-ink text-[11px] font-mono-tech"
+                            >
+                              {t.label}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-[11px] text-ink-muted">Özel bir taklit konusu bulunamadı.</p>
+                      )}
+                    </div>
+
+                    {/* Aciliyet & Tehdit Baskısı */}
+                    <div className="p-3.5 rounded-lg border border-border-subtle bg-canvas/60 space-y-2">
+                      <div className="flex items-center gap-1.5 text-xs font-semibold text-ink">
+                        <Clock size={15} className="text-warning" />
+                        <span>Manipülasyon Göstergeleri</span>
+                      </div>
+                      <div className="text-xs space-y-1">
+                        <div className="flex justify-between items-center text-[11px]">
+                          <span className="text-ink-secondary">Zaman / İcra Baskısı:</span>
+                          <span className={smsResult.manipulation.has_urgency ? "text-alert font-bold" : "text-safe"}>
+                            {smsResult.manipulation.has_urgency ? "Var" : "Yok"}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center text-[11px]">
+                          <span className="text-ink-secondary">Ödeme / Borç Talebi:</span>
+                          <span className={smsResult.manipulation.has_financial_demand ? "text-alert font-bold" : "text-safe"}>
+                            {smsResult.manipulation.has_financial_demand ? "Var" : "Yok"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* İçerik Güvenliği / Dil Denetimi (Tamamen Bağımsız) */}
+                  <div className="p-3.5 rounded-lg border border-border-subtle bg-surface space-y-1.5">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-semibold text-ink flex items-center gap-1.5">
+                        <ChatCircleText size={15} className="text-ink-muted" />
+                        İçerik Güvenliği & Dil Denetimi
+                      </span>
+                      <span className={`text-[10px] font-mono-tech px-2 py-0.5 rounded ${smsResult.content_safety.safe_for_work ? "bg-safe-light text-safe" : "bg-alert-light text-alert"}`}>
+                        {smsResult.content_safety.safe_for_work ? "Temiz Dil" : "Uygunsuz Dil"}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-ink-secondary">
+                      {smsResult.content_safety.explanation}
+                    </p>
+                  </div>
+
+                  {/* Bulgular */}
+                  <div className="space-y-1.5">
+                    <span className="text-xs font-bold text-ink uppercase tracking-wider block">
+                      Analiz Bulguları
+                    </span>
+                    {smsResult.reasons.map((r, i) => (
+                      <EvidenceRow key={i} text={r} type={smsResult.risk_score >= 50 ? "alert" : "neutral"} />
+                    ))}
+                  </div>
+                </PorcelainPanel>
               )}
             </div>
           )}
 
-          {/* ==================== MOD 3: BAŞLIK VE METİN ANALİZİ ==================== */}
-          {activeMode === "text" && (
-            <div className="animate-fade-in max-w-3xl mx-auto">
-              <div className="p-4 sm:p-6 rounded-2xl border border-surface-border bg-surface/80 shadow-2xl backdrop-blur-md space-y-4">
+          {/* ==============================================================
+              TAB 3: TITLE & CONTENT ANALYZER
+             ============================================================== */}
+          {activeTab === "text" && (
+            <div className="space-y-6">
+              <PorcelainPanel variant="solid" className="p-4 md:p-5 space-y-4">
                 <div>
-                  <label className="block text-xs font-mono text-slate-300 mb-1.5">
+                  <label className="block text-xs font-semibold text-ink uppercase tracking-wider mb-1.5">
                     Konu Başlığı / E-posta Konusu (Opsiyonel)
                   </label>
-                  <Input
+                  <input
                     type="text"
-                    placeholder="Örn: Acil Hesap Bildirimi, Fatura Gecikmesi vb."
                     value={textTitle}
                     onChange={(e) => setTextTitle(e.target.value)}
-                    className="bg-slate-950/70 border-surface-border text-white text-xs sm:text-sm"
+                    placeholder="Örn: Acil: Hesabınız Güvenlik Nedeniyle Bloke Edildi"
+                    className="w-full px-3.5 py-2 rounded-lg border border-border-fine bg-surface text-ink text-xs font-mono-tech focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-mono text-slate-300 mb-1.5">
-                    İçerik Metni <span className="text-rose-400">*</span>
+                  <label className="block text-xs font-semibold text-ink uppercase tracking-wider mb-1.5">
+                    Metin Gövdesi <span className="text-alert">*</span>
                   </label>
                   <textarea
                     rows={5}
-                    placeholder="E-posta gövdesi, duyuru veya mesaj metnini buraya yapıştırın..."
                     value={textContent}
                     onChange={(e) => {
                       setTextContent(e.target.value);
                       if (validationError) setValidationError("");
+                      if (serverError) setServerError("");
                     }}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/70 border border-surface-border text-white text-xs sm:text-sm focus:outline-none focus:border-cyan-500/80 focus:ring-1 focus:ring-cyan-500/80 placeholder:text-slate-500 resize-none"
+                    placeholder="E-posta veya duyuru metnini buraya yapıştırın..."
+                    className="w-full p-3 rounded-lg border border-border-fine bg-surface text-ink text-xs sm:text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent resize-none leading-relaxed"
                   />
                 </div>
 
-                <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    <span className="text-[11px] font-mono text-slate-400 mr-1">Hazır Şablonlar:</span>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        loadTextSample(
-                          "Hesabınız Güvenlik Nedeniyle Askıya Alındı",
-                          "Değerli müşterimiz, banka hesabınızda şüpheli işlem girişimleri tespit edilmiştir. 1 saat içerisinde güvenli onay sayfasına giderek bilgilerinizi doğrulamazsanız hesabınız bloke edilecektir: http://banka-onay-sistemi.cc/dogrula"
-                        )
-                      }
-                      className="px-2 py-1 rounded bg-slate-900 border border-surface-border text-[11px] text-rose-300 hover:border-rose-500/50"
-                    >
-                      Banka Bloke E-postası
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        loadTextSample(
-                          "Gecikmiş Doğalgaz Faturası",
-                          "Sayın abonemiz, ödenmemiş faturanız sebebiyle gaz arzınız 24 saat içinde kesilecektir. Kesintiyi önlemek için derhal online ödeme yapınız: http://fatura-borc-ode.xyz"
-                        )
-                      }
-                      className="px-2 py-1 rounded bg-slate-900 border border-surface-border text-[11px] text-amber-300 hover:border-amber-500/50"
-                    >
-                      Fatura Kesintisi Tuzağı
-                    </button>
-                  </div>
-
-                  <div className="flex items-center gap-2 w-full sm:w-auto">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      onClick={handleResetCurrent}
-                      className="text-xs text-slate-400 hover:text-white"
-                    >
-                      Temizle
-                    </Button>
-                    <Button
-                      type="button"
-                      onClick={executeTextAnalysis}
-                      isLoading={isLoading}
-                      className="flex-1 sm:flex-none shadow-lg shadow-cyan-500/20"
-                    >
-                      <span>Metni Denetle</span>
-                      <ArrowRight className="w-4 h-4 ml-1.5" />
-                    </Button>
-                  </div>
+                <div className="flex items-center justify-end gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={handleReset}
+                    className="px-3 py-1.5 rounded-lg border border-border-subtle text-xs text-ink-secondary hover:text-ink"
+                  >
+                    Temizle
+                  </button>
+                  <button
+                    type="button"
+                    onClick={executeTextAnalysis}
+                    disabled={isLoading}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent text-surface text-xs font-semibold hover:bg-accent-hover transition-colors shadow-subtle disabled:opacity-50"
+                  >
+                    {isLoading ? "İnceleniyor..." : "Metni Denetle"}
+                    <ArrowRight size={14} weight="bold" />
+                  </button>
                 </div>
-              </div>
+              </PorcelainPanel>
 
-              {validationError && (
-                <p className="text-center text-xs font-mono text-rose-400 mt-3 animate-fade-in">
-                  {validationError}
-                </p>
-              )}
+              {textResult && (
+                <PorcelainPanel variant="solid" className="p-5 md:p-6 space-y-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-border-subtle">
+                    <div>
+                      <div className="text-[11px] font-mono-tech uppercase tracking-wider text-ink-muted">
+                        Metin İnceleme Raporu
+                      </div>
+                      <h2 className="text-lg font-bold text-ink mt-0.5">
+                        Sosyal Mühendislik & Güvenlik Değerlendirmesi
+                      </h2>
+                    </div>
+                    <RiskIndicator status={textResult.status} score={textResult.risk_score} />
+                  </div>
 
-              {/* Metin Sonuç Alanı */}
-              {isLoading ? (
-                <LoadingState />
-              ) : serverError ? (
-                <ErrorState message={serverError} onRetry={executeTextAnalysis} />
-              ) : textResult ? (
-                <MessageResultPanel result={textResult} mode="text" />
-              ) : (
-                <EmptyState />
+                  <div className="space-y-1.5">
+                    <span className="text-xs font-bold text-ink uppercase tracking-wider block">
+                      Değerlendirme Bulguları
+                    </span>
+                    {textResult.reasons.map((r, i) => (
+                      <EvidenceRow key={i} text={r} type={textResult.risk_score >= 50 ? "alert" : "neutral"} />
+                    ))}
+                  </div>
+                </PorcelainPanel>
               )}
             </div>
           )}
-        </Container>
-      </section>
+        </AnalysisWorkspace>
+      </div>
 
-      {/* ============================================================
-          3. FEATURES SECTION (MINIMAL SaaS KARTLARI)
-         ============================================================ */}
-      <section className="py-20 sm:py-28">
-        <Container size="default">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/60 border border-cyan-500/30 text-cyan-300 text-xs font-mono mb-3">
-              Temel Nitelikler
-            </div>
-            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
-              Neden Oltasez?
-            </h2>
-            <p className="mt-3 text-sm sm:text-base text-slate-400">
-              Geleneksel tarama yöntemlerinin gecikmelerinden arındırılmış, hafif ve hedefe yönelik analiz mimarisi.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card variant="interactive">
-              <CardHeader>
-                <div className="w-12 h-12 rounded-xl bg-cyan-950/70 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-4 shadow-sm group-hover:scale-105 transition-transform">
-                  <Zap className="w-6 h-6" />
-                </div>
-                <CardTitle className="text-base text-white">Ultra Düşük Gecikme</CardTitle>
-                <CardDescription className="text-xs text-slate-400 leading-relaxed mt-2">
-                  Hedef sunucuya ağ bağlantısı kurmadan, yalnızca leksikal ve metin özellikleri üzerinden milisaniyeler içinde değerlendirme yapar.
-                </CardDescription>
-              </CardHeader>
-            </Card>
-
-            <Card variant="interactive">
-              <CardHeader>
-                <div className="w-12 h-12 rounded-xl bg-teal-950/70 border border-teal-500/30 flex items-center justify-center text-teal-400 mb-4 shadow-sm group-hover:scale-105 transition-transform">
-                  <Binary className="w-6 h-6" />
-                </div>
-                <CardTitle className="text-base text-white">Çok Modlu Sezgisel Motor</CardTitle>
-                <CardDescription className="text-xs text-slate-400 leading-relaxed mt-2">
-                  URL yapısı, SMS manipülasyon taktikleri ve e-posta içeriklerini ayrık risk ve konu modelleriyle inceler.
-                </CardDescription>
-              </CardHeader>
-            </Card>
-
-            <Card variant="interactive">
-              <CardHeader>
-                <div className="w-12 h-12 rounded-xl bg-sky-950/70 border border-sky-500/30 flex items-center justify-center text-sky-400 mb-4 shadow-sm group-hover:scale-105 transition-transform">
-                  <SlidersHorizontal className="w-6 h-6" />
-                </div>
-                <CardTitle className="text-base text-white">Ayrık Güvenlik Modeli</CardTitle>
-                <CardDescription className="text-xs text-slate-400 leading-relaxed mt-2">
-                  Konu taklidi, aciliyet baskısı ve dil güvenliğini (küfür/hakaret) birbirine karıştırmadan şeffafça sınıflandırır.
-                </CardDescription>
-              </CardHeader>
-            </Card>
-
-            <Card variant="interactive">
-              <CardHeader>
-                <div className="w-12 h-12 rounded-xl bg-indigo-950/70 border border-indigo-500/30 flex items-center justify-center text-indigo-400 mb-4 shadow-sm group-hover:scale-105 transition-transform">
-                  <Globe2 className="w-6 h-6" />
-                </div>
-                <CardTitle className="text-base text-white">Türkçe Tehditlere Özel</CardTitle>
-                <CardDescription className="text-xs text-slate-400 leading-relaxed mt-2">
-                  HGS borcu, e-Devlet, kargo teslimatı ve elektrik/su/internet faturası dolandırıcılık modelleri için optimize edilmiş kalıplar.
-                </CardDescription>
-              </CardHeader>
-            </Card>
-          </div>
-        </Container>
-      </section>
-
-      {/* ============================================================
-          4. HOW IT WORKS SECTION
-         ============================================================ */}
-      <section id="how-it-works" className="py-20 sm:py-28 bg-[#030712]/50 border-t border-surface-border/50">
-        <Container size="default">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/60 border border-cyan-500/30 text-cyan-300 text-xs font-mono mb-3">
-              Çalışma Mantığı
-            </div>
-            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
-              Sistem Nasıl Çalışır?
-            </h2>
-            <p className="mt-3 text-sm sm:text-base text-slate-400">
-              Uçtan uca güvenli, veri kazıma gerektirmeyen şeffaf 3 aşamalı değerlendirme döngüsü.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="p-6 rounded-2xl bg-surface/50 border border-surface-border/70 relative">
-              <div className="w-9 h-9 rounded-lg bg-cyan-950 text-cyan-400 font-mono text-sm font-bold flex items-center justify-center mb-4 border border-cyan-500/30">
-                01
-              </div>
-              <h3 className="text-base font-semibold text-white mb-2">Metin ve URL Ayrıştırma</h3>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                İçerik içindeki alan adları, aciliyet belirteçleri ve konu anahtar kelimeleri regex ve leksikal ayrıştırıcı ile çıkarılır.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-surface/50 border border-surface-border/70 relative">
-              <div className="w-9 h-9 rounded-lg bg-cyan-950 text-cyan-400 font-mono text-sm font-bold flex items-center justify-center mb-4 border border-cyan-500/30">
-                02
-              </div>
-              <h3 className="text-base font-semibold text-white mb-2">Çok Boyutlu Sınıflandırma</h3>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Konu türü, oltalama riski ve içerik güvenliği 3 bağımsız mantık katmanında işlenir. Sahte AI güven puanları üretilmez.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-surface/50 border border-surface-border/70 relative">
-              <div className="w-9 h-9 rounded-lg bg-cyan-950 text-cyan-400 font-mono text-sm font-bold flex items-center justify-center mb-4 border border-cyan-500/30">
-                03
-              </div>
-              <h3 className="text-base font-semibold text-white mb-2">Ayrıntılı Şeffaf Rapor</h3>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Risk skoru, tetiklenen göstergeler, IP/entropi ölçümleri ve Türkçe açıklamalar kullanıcıya anlaşılır şekilde sunulur.
-              </p>
-            </div>
-          </div>
-        </Container>
-      </section>
+      {/* 3. SAĞ TEKNİK TEFTİŞ PANELI (InspectionPanel - Contextual) */}
+      <InspectionPanel result={urlResult} />
     </div>
   );
 }

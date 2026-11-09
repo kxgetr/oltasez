@@ -6,68 +6,54 @@ const config: Config = {
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
-  darkMode: "class",
   theme: {
     extend: {
       colors: {
-        background: "#030712", // Derin gece mavisi / siyah
-        surface: {
-          DEFAULT: "#0b1220",
-          muted: "#0f172a",
-          border: "#1e293b",
-          highlight: "#1e2c47",
+        canvas: "#FAFBFC",
+        surface: "#FFFFFF",
+        frost: {
+          DEFAULT: "#E9EEF5",
+          translucent: "rgba(233, 238, 245, 0.72)",
         },
-        brand: {
-          50: "#ecfeff",
-          100: "#cffafe",
-          200: "#a5f3fc",
-          300: "#67e8f9",
-          400: "#22d3ee",
-          500: "#06b6d4",
-          600: "#0891b2",
-          700: "#0e7490",
-          DEFAULT: "#14b8a6", // Turkuaz vurgu
-          accent: "#0ea5e9", // Siber gök mavisi
+        ink: {
+          DEFAULT: "#111827",
+          secondary: "#475569",
+          muted: "#64748B",
+          faint: "#94A3B8",
         },
-        status: {
-          safe: {
-            bg: "rgba(16, 185, 129, 0.1)",
-            border: "rgba(16, 185, 129, 0.3)",
-            text: "#34d399",
-            glow: "rgba(16, 185, 129, 0.25)",
-          },
-          suspicious: {
-            bg: "rgba(245, 158, 11, 0.1)",
-            border: "rgba(245, 158, 11, 0.35)",
-            text: "#fbbf24",
-            glow: "rgba(245, 158, 11, 0.25)",
-          },
-          phishing: {
-            bg: "rgba(239, 68, 68, 0.12)",
-            border: "rgba(239, 68, 68, 0.4)",
-            text: "#f87171",
-            glow: "rgba(239, 68, 68, 0.3)",
-          },
+        border: {
+          subtle: "#E2E8F0",
+          fine: "#CBD5E1",
         },
-      },
-      borderRadius: {
-        "2xl": "1rem",
-        "3xl": "1.5rem",
-      },
-      boxShadow: {
-        "cyber-sm": "0 0 15px -3px rgba(20, 184, 166, 0.15)",
-        "cyber-glow": "0 0 35px -5px rgba(20, 184, 166, 0.3)",
-        "cyber-blue": "0 0 35px -5px rgba(14, 165, 233, 0.3)",
-        "cyber-danger": "0 0 35px -5px rgba(239, 68, 68, 0.3)",
-        "card-glass": "0 8px 32px 0 rgba(0, 0, 0, 0.37)",
+        accent: {
+          DEFAULT: "#315FF4",
+          light: "#EEF2FF",
+          muted: "#4338CA",
+          hover: "#254EDB",
+        },
+        alert: {
+          DEFAULT: "#E46655",
+          light: "#FEF2F2",
+          border: "#FCA5A5",
+        },
+        safe: {
+          DEFAULT: "#10B981",
+          light: "#ECFDF5",
+          border: "#A7F3D0",
+        },
+        warning: {
+          DEFAULT: "#F59E0B",
+          light: "#FFFBEB",
+          border: "#FDE68A",
+        },
       },
       fontFamily: {
         sans: [
+          "Geist",
           "-apple-system",
           "BlinkMacSystemFont",
           "Segoe UI",
           "Roboto",
-          "Helvetica Neue",
           "sans-serif",
         ],
         mono: [
@@ -76,10 +62,13 @@ const config: Config = {
           "Menlo",
           "Monaco",
           "Consolas",
-          "Liberation Mono",
-          "Courier New",
           "monospace",
         ],
+      },
+      boxShadow: {
+        subtle: "0 1px 3px rgba(17, 24, 39, 0.04), 0 1px 2px rgba(17, 24, 39, 0.02)",
+        elevated: "0 4px 16px rgba(17, 24, 39, 0.04), 0 1px 2px rgba(17, 24, 39, 0.02)",
+        dropdown: "0 10px 25px -5px rgba(17, 24, 39, 0.08), 0 8px 10px -6px rgba(17, 24, 39, 0.04)",
       },
     },
   },
