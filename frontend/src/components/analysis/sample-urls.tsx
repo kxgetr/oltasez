@@ -54,10 +54,10 @@ export function SampleUrlSelector({ onSelect, selectedUrl }: SampleUrlSelectorPr
         <div className="flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-cyan-400" />
           <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-300">
-            Örnek Senaryolar ile Test Edin
+            Örnek Test Senaryoları <span className="text-[10px] text-cyan-400 bg-cyan-950/60 px-1.5 py-0.5 rounded border border-cyan-500/30 ml-1.5">(Demo)</span>
           </h3>
         </div>
-        <span className="text-[11px] font-mono text-slate-400">Tek tıkla sorgulayın</span>
+        <span className="text-[11px] font-mono text-slate-400">Tek tıkla otomatik doldurur</span>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
