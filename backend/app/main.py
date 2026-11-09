@@ -7,6 +7,7 @@ from app.core.config import settings
 from app.core.model_loader import model_manager
 from app.schemas.analysis import HealthResponse
 from app.api.endpoints import router as analysis_router
+from app.api.v1_endpoints import v1_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -65,6 +66,7 @@ def health_check() -> HealthResponse:
 
 app.include_router(analysis_router)
 app.include_router(analysis_router, prefix=settings.API_V1_STR)
+app.include_router(v1_router)
 
 @app.get("/", tags=["Root"], include_in_schema=False)
 def root():
