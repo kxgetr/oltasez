@@ -1,113 +1,57 @@
 "use client";
 
 import Link from "next/link";
-import { 
-  NavigationRail, 
-  FrostedToolbar, 
-  AnalysisWorkspace, 
-  PorcelainPanel, 
-  EvidenceRow 
-} from "@/components/porcelain";
-import { Network, ShieldCheck, LockKey, ArrowRight } from "@phosphor-icons/react";
 
 export default function NasilCalisirPage() {
   return (
-    <div className="flex h-screen bg-canvas text-ink overflow-hidden font-sans">
-      <NavigationRail currentTab="methodology" />
+    <div className="min-h-screen bg-white text-slate-900 flex flex-col justify-between font-sans">
+      <header className="w-full border-b border-slate-100 px-6 py-4 flex items-center justify-between max-w-4xl mx-auto">
+        <Link href="/" className="font-semibold text-sm tracking-tight text-slate-900">
+          Oltasez
+        </Link>
+        <Link href="/" className="text-xs text-slate-700 hover:text-slate-900">
+          Geri dön
+        </Link>
+      </header>
 
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <FrostedToolbar
-          left={
-            <div className="flex items-center gap-2 text-xs text-ink-secondary">
-              <Link href="/" className="hover:text-ink">
-                Çalışma Alanı
-              </Link>
-              <span>/</span>
-              <span className="font-medium text-accent">Araştırma Metodolojisi</span>
-            </div>
-          }
-          right={
-            <Link
-              href="/"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent text-surface text-xs font-semibold hover:bg-accent-hover transition-colors"
-            >
-              <span>Canlı Analiz</span>
-              <ArrowRight size={13} weight="bold" />
-            </Link>
-          }
-        />
+      <main className="w-full max-w-xl mx-auto px-6 py-12 flex-1">
+        <h1 className="text-xl font-semibold text-slate-900 mb-4">
+          Nasıl çalışır
+        </h1>
 
-        <AnalysisWorkspace
-          headerTitle="Siber Tehdit Analiz Metodolojisi"
-          headerSubtitle="Oltasez, hedef sunucuya bağlanmadan tamamen leksikal öznitelikler ve doğrulanmış kök alan adı haritalaması ile çalışır."
-        >
-          <div className="space-y-6 max-w-4xl">
-            {/* 1. Modül */}
-            <PorcelainPanel variant="solid" className="p-5 md:p-6 space-y-4">
-              <div className="flex items-center gap-3 pb-3 border-b border-border-subtle">
-                <div className="w-8 h-8 rounded-lg bg-canvas text-accent flex items-center justify-center font-bold">
-                  <Network size={20} />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-ink">
-                    1. URL Leksikal Analizörü (Zero-Network Architecture)
-                  </h3>
-                  <p className="text-[11px] text-ink-muted">
-                    Sunucudan hedef bağlantıya hiçbir HTTP/HTTPS isteği gönderilmez.
-                  </p>
-                </div>
-              </div>
-              <p className="text-xs text-ink-secondary leading-relaxed">
-                Şüpheli bir web adresini ziyaret etmek kullanıcıyı istemci taraflı kötü amaçlı yazılımlara veya oturum çalma tuzaklarına maruz bırakabilir. Oltasez, UCI PhiUSIIL veri kümesi standartlarına dayalı olarak doğrudan URL metninden 14 matematiksel öznitelik (Shannon entropisi, alt alan derinliği, punycode/homograf taklidi, IP kullanımı) çıkarır.
-              </p>
-              <div className="space-y-1.5 pt-2">
-                <EvidenceRow text="Doğrulanmış e-Devlet, KGM ve banka kök alan adları güvenli kabul edilir." type="verified" />
-                <EvidenceRow text="Substring eşlemesi yapılmaz; sahte alan adları ('turkiye-gov-tr.cc') taklit olarak etiketlenir." type="warning" />
-              </div>
-            </PorcelainPanel>
+        <div className="space-y-6 text-xs text-slate-700 leading-relaxed">
+          <section className="space-y-1.5">
+            <h2 className="font-semibold text-slate-900 text-sm">
+              Bağlantı analizi
+            </h2>
+            <p>
+              Bağlantı taranırken hedef sunucuya istek gönderilmez. Alan adının yapısı, karakter karmaşıklığı (entropi), ham IP kullanımı ve bilinen resmî kurum taklitleri kontrol edilir.
+            </p>
+          </section>
 
-            {/* 2. Modül */}
-            <PorcelainPanel variant="solid" className="p-5 md:p-6 space-y-4">
-              <div className="flex items-center gap-3 pb-3 border-b border-border-subtle">
-                <div className="w-8 h-8 rounded-lg bg-canvas text-warning flex items-center justify-center font-bold">
-                  <ShieldCheck size={20} />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-ink">
-                    2. Ayrık Dolandırıcılık ve Konu Modeli
-                  </h3>
-                  <p className="text-[11px] text-ink-muted">
-                    Konu varlığı tek başına dolandırıcılık kanıtı sayılmaz.
-                  </p>
-                </div>
-              </div>
-              <p className="text-xs text-ink-secondary leading-relaxed">
-                Bir SMS veya metinde &quot;HGS&quot;, &quot;PTT&quot; veya &quot;Fatura&quot; kelimesinin geçmesi suç unsuru değildir. Oltasez; konu etiketlemesini, aciliyet/haciz baskısını ve sahte bağlantı varlığını ayrı ayrı inceler.
-              </p>
-            </PorcelainPanel>
+          <section className="space-y-1.5">
+            <h2 className="font-semibold text-slate-900 text-sm">
+              Mesaj ve metin analizi
+            </h2>
+            <p>
+              Metindeki kurum taklitleri (HGS, kargo, fatura), yapay aciliyet baskısı (icra, bloke, son 24 saat) ve içerikteki bağlantılar incelenir.
+            </p>
+          </section>
 
-            {/* 3. Modül */}
-            <PorcelainPanel variant="solid" className="p-5 md:p-6 space-y-4">
-              <div className="flex items-center gap-3 pb-3 border-b border-border-subtle">
-                <div className="w-8 h-8 rounded-lg bg-canvas text-alert flex items-center justify-center font-bold">
-                  <LockKey size={20} />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-ink">
-                    3. Bağımsız İçerik Güvenliği (Content Safety)
-                  </h3>
-                  <p className="text-[11px] text-ink-muted">
-                    Küfür veya argo dil oltalama (phishing) riskiyle birleştirilmez.
-                  </p>
-                </div>
-              </div>
-              <p className="text-xs text-ink-secondary leading-relaxed">
-                Kaba ve küfürlü bir mesaj phishing değildir; kusursuz Türkçeyle yazılmış bir banka sahtekarlığı ise yüksek risklidir. Bu iki kavramın bağımsız sınıflandırılması yanlış alarmları önler.
-              </p>
-            </PorcelainPanel>
-          </div>
-        </AnalysisWorkspace>
-      </div>
+          <section className="space-y-1.5">
+            <h2 className="font-semibold text-slate-900 text-sm">
+              Konu ve risk ayrımı
+            </h2>
+            <p>
+              Bir metinde &quot;HGS&quot; veya &quot;fatura&quot; kelimesinin geçmesi tek başına dolandırıcılık işareti değildir. Risk ancak tehdit, baskı veya sahte yönlendirme ile birlikte değerlendirilir.
+            </p>
+          </section>
+        </div>
+      </main>
+
+      <footer className="w-full border-t border-slate-100 px-6 py-4 text-center text-[11px] text-slate-600 max-w-4xl mx-auto">
+        Oltasez • Sayfa içeriği taranmaz, veriler kaydedilmez.
+      </footer>
     </div>
   );
 }

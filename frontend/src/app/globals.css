@@ -2,94 +2,40 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ==============================================================================
-   PORCELAIN DESIGN SYSTEM TOKENS (macOS-inspired Light/Porcelain Forensic Aesthetic)
-   ============================================================================== */
 :root {
-  --canvas: #FAFBFC;
+  --background: #FFFFFF;
   --surface: #FFFFFF;
-  --frost: #E9EEF5;
-  --frost-translucent: rgba(233, 238, 245, 0.72);
-  --glass-surface: rgba(255, 255, 255, 0.82);
+  --canvas-subtle: #F8FAFC;
   --border-subtle: #E2E8F0;
-  --border-fine: #CBD5E1;
-  --ink: #111827;
+  --border-focus: #CBD5E1;
+  --ink: #0F172A;
   --ink-secondary: #475569;
   --ink-muted: #64748B;
   --ink-faint: #94A3B8;
-  --accent: #315FF4;
-  --accent-light: #EEF2FF;
-  --accent-muted: #4338CA;
-  --alert: #E46655;
-  --alert-light: #FEF2F2;
-  --alert-border: #FCA5A5;
-  --safe: #10B981;
-  --safe-light: #ECFDF5;
-  --safe-border: #A7F3D0;
-  --warning: #F59E0B;
-  --warning-light: #FFFBEB;
-  --warning-border: #FDE68A;
+  --accent: #2563EB;
+  --accent-hover: #1D4ED8;
+  --alert: #DC2626;
+  --alert-bg: #FEF2F2;
+  --alert-border: #FEE2E2;
+  --warning: #D97706;
+  --warning-bg: #FFFBEB;
+  --warning-border: #FEF3C7;
+  --safe: #059669;
+  --safe-bg: #ECFDF5;
+  --safe-border: #D1FAE5;
 }
 
 body {
-  background-color: var(--canvas);
+  background-color: var(--background);
   color: var(--ink);
   min-height: 100vh;
-  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
 }
 
-/* Monospace alignment for technical hashes, entropy, domains */
 .font-mono-tech {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  font-feature-settings: "zero", "tnum";
-}
-
-/* Material: Porcelain Glass Surfaces */
-.porcelain-glass {
-  background: var(--glass-surface);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(226, 232, 240, 0.85);
-  box-shadow: 0 1px 2px rgba(17, 24, 39, 0.02), 0 4px 16px rgba(17, 24, 39, 0.03);
-}
-
-.porcelain-card {
-  background: var(--surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(17, 24, 39, 0.03), 0 1px 2px rgba(17, 24, 39, 0.02);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-.porcelain-card-hover:hover {
-  border-color: #94A3B8;
-  box-shadow: 0 4px 12px rgba(17, 24, 39, 0.05);
-}
-
-.porcelain-card-active {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 1px var(--accent), 0 4px 12px rgba(49, 95, 244, 0.08);
-}
-
-/* Subtle scrollbars fitting workstation aesthetic */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
-  border-radius: 9999px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 /* Reduced-motion support */

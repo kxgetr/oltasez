@@ -1,68 +1,57 @@
 "use client";
 
 import Link from "next/link";
-import { 
-  NavigationRail, 
-  FrostedToolbar, 
-  AnalysisWorkspace, 
-  PorcelainPanel 
-} from "@/components/porcelain";
-import { LockSimple, EyeSlash, ArrowRight } from "@phosphor-icons/react";
 
 export default function GizlilikPage() {
   return (
-    <div className="flex h-screen bg-canvas text-ink overflow-hidden font-sans">
-      <NavigationRail currentTab="privacy" />
+    <div className="min-h-screen bg-white text-slate-900 flex flex-col justify-between font-sans">
+      <header className="w-full border-b border-slate-100 px-6 py-4 flex items-center justify-between max-w-4xl mx-auto">
+        <Link href="/" className="font-semibold text-sm tracking-tight text-slate-900">
+          Oltasez
+        </Link>
+        <Link href="/" className="text-xs text-slate-700 hover:text-slate-900">
+          Geri dön
+        </Link>
+      </header>
 
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <FrostedToolbar
-          left={
-            <div className="flex items-center gap-2 text-xs text-ink-secondary">
-              <Link href="/" className="hover:text-ink">
-                Çalışma Alanı
-              </Link>
-              <span>/</span>
-              <span className="font-medium text-accent">Gizlilik Bildirimi</span>
-            </div>
-          }
-          right={
-            <Link
-              href="/"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent text-surface text-xs font-semibold hover:bg-accent-hover transition-colors"
-            >
-              <span>Canlı Analiz</span>
-              <ArrowRight size={13} weight="bold" />
-            </Link>
-          }
-        />
+      <main className="w-full max-w-xl mx-auto px-6 py-12 flex-1">
+        <h1 className="text-xl font-semibold text-slate-900 mb-4">
+          Gizlilik
+        </h1>
 
-        <AnalysisWorkspace
-          headerTitle="Gizlilik ve Veri Güvenliği Taahhüdü"
-          headerSubtitle="Oltasez, kullanıcı girdilerini üçüncü taraflara satmaz, sunucuda kalıcı olarak saklamaz ve hedef bağlantılara izinsiz istek atmaz."
-        >
-          <div className="space-y-6 max-w-4xl">
-            <PorcelainPanel variant="solid" className="p-5 md:p-6 space-y-3">
-              <div className="flex items-center gap-2 text-ink font-bold text-sm">
-                <LockSimple size={18} className="text-safe" />
-                <span>1. Sıfır Kalıcı Veri Saklama</span>
-              </div>
-              <p className="text-xs text-ink-secondary leading-relaxed">
-                Analiz formuna yapıştırdığınız web bağlantıları veya SMS metinleri yalnızca anlık leksikal matematik formüllerinden geçirilir. Yanıt oluşturulduktan sonra bellekten silinir; hiçbir veritabanına kaydedilmez.
-              </p>
-            </PorcelainPanel>
+        <div className="space-y-6 text-xs text-slate-700 leading-relaxed">
+          <section className="space-y-1.5">
+            <h2 className="font-semibold text-slate-900 text-sm">
+              Veri saklama
+            </h2>
+            <p>
+              Kontrol edilen bağlantılar, mesajlar ve metinler sunucuda kaydedilmez. Analiz anlık olarak bellekte yapılır ve sonuç üretildikten hemen sonra silinir.
+            </p>
+          </section>
 
-            <PorcelainPanel variant="solid" className="p-5 md:p-6 space-y-3">
-              <div className="flex items-center gap-2 text-ink font-bold text-sm">
-                <EyeSlash size={18} className="text-accent" />
-                <span>2. Loglardan Hassas Bilgi Maskeleme</span>
-              </div>
-              <p className="text-xs text-ink-secondary leading-relaxed">
-                URL sorgularınızda veya parametrelerinizde yer alabilecek olası parola, oturum anahtarı (token), OTP veya kart numaraları sunucu loglarına yazılmadan önce otomatik olarak maskelenir.
-              </p>
-            </PorcelainPanel>
-          </div>
-        </AnalysisWorkspace>
-      </div>
+          <section className="space-y-1.5">
+            <h2 className="font-semibold text-slate-900 text-sm">
+              Hedef sunucuya bağlanmama
+            </h2>
+            <p>
+              Girdiğiniz web bağlantılarına sunucumuz tarafından ziyaret veya sayfa kazıma isteği yapılmaz. Bu sayede IP adresiniz karşı tarafa iletilmez.
+            </p>
+          </section>
+
+          <section className="space-y-1.5">
+            <h2 className="font-semibold text-slate-900 text-sm">
+              Çerezler ve takipçiler
+            </h2>
+            <p>
+              Sitede reklam çerezi, üçüncü taraf takip kodu veya kullanıcı profilleme araçları bulunmaz.
+            </p>
+          </section>
+        </div>
+      </main>
+
+      <footer className="w-full border-t border-slate-100 px-6 py-4 text-center text-[11px] text-slate-600 max-w-4xl mx-auto">
+        Oltasez • Sayfa içeriği taranmaz, veriler kaydedilmez.
+      </footer>
     </div>
   );
 }
