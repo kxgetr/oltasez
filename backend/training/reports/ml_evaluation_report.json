@@ -1,0 +1,148 @@
+{
+  "timestamp": "2026-11-09T22:37:55.140Z",
+  "dataset_metadata": {
+    "source": "UCI PhiUSIIL Phishing URL Dataset (Lexical Sub-features)",
+    "total_samples": 40,
+    "independent_samples": 10
+  },
+  "domain_leakage_audit": {
+    "split_a_random_overlap_count": 0,
+    "split_a_overlapping_domains": [],
+    "split_b_grouped_overlap_count": 0,
+    "split_c_independent_overlap_count": 0
+  },
+  "experiments": {
+    "RuleBasedBaseline": {
+      "random_split": {
+        "tp": 8,
+        "fp": 0,
+        "tn": 0,
+        "fn": 0,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "accuracy": 1,
+        "fpr": 0,
+        "pr_auc": 1,
+        "brier_score": 0.09,
+        "latency_ms_per_1000": 100.913
+      },
+      "grouped_domain_split": {
+        "tp": 10,
+        "fp": 0,
+        "tn": 0,
+        "fn": 0,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "accuracy": 1,
+        "fpr": 0,
+        "pr_auc": 1,
+        "brier_score": 0.0945,
+        "latency_ms_per_1000": 11.65
+      },
+      "independent_test_split": {
+        "tp": 4,
+        "fp": 0,
+        "tn": 5,
+        "fn": 1,
+        "precision": 1,
+        "recall": 0.8,
+        "f1": 0.8889,
+        "accuracy": 0.9,
+        "fpr": 0,
+        "pr_auc": 1,
+        "brier_score": 0.0732,
+        "latency_ms_per_1000": 7.46
+      }
+    },
+    "LogisticRegression": {
+      "random_split": {
+        "tp": 8,
+        "fp": 0,
+        "tn": 0,
+        "fn": 0,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "accuracy": 1,
+        "fpr": 0,
+        "pr_auc": 0.375,
+        "brier_score": 0.0152,
+        "latency_ms_per_1000": 12.162
+      },
+      "grouped_domain_split": {
+        "tp": 10,
+        "fp": 0,
+        "tn": 0,
+        "fn": 0,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "accuracy": 1,
+        "fpr": 0,
+        "pr_auc": 0.4,
+        "brier_score": 0.0151,
+        "latency_ms_per_1000": 2.91
+      },
+      "independent_test_split": {
+        "tp": 5,
+        "fp": 0,
+        "tn": 5,
+        "fn": 0,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "accuracy": 1,
+        "fpr": 0,
+        "pr_auc": 0.4,
+        "brier_score": 0.0275,
+        "latency_ms_per_1000": 3.71
+      }
+    },
+    "RandomForest": {
+      "random_split": {
+        "tp": 8,
+        "fp": 0,
+        "tn": 0,
+        "fn": 0,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "accuracy": 1,
+        "fpr": 0,
+        "pr_auc": 1,
+        "brier_score": 0.085,
+        "latency_ms_per_1000": 13.1
+      },
+      "grouped_domain_split": {
+        "tp": 10,
+        "fp": 0,
+        "tn": 0,
+        "fn": 0,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "accuracy": 1,
+        "fpr": 0,
+        "pr_auc": 1,
+        "brier_score": 0.076,
+        "latency_ms_per_1000": 4.55
+      },
+      "independent_test_split": {
+        "tp": 5,
+        "fp": 0,
+        "tn": 5,
+        "fn": 0,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "accuracy": 1,
+        "fpr": 0,
+        "pr_auc": 1,
+        "brier_score": 0.06,
+        "latency_ms_per_1000": 3.62
+      }
+    }
+  }
+}
